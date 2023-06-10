@@ -9,7 +9,10 @@
 #' @return balancing weights
 #' 
 #' @export balance_minimax
-balance_minimax = function(X, W, zeta, solver = c("ECOS", "SCS"), verbose = TRUE) {
+balance_minimax = function(X, W, zeta, solver = c("ECOS", "SCS", "MOSEK"), verbose = TRUE) {
+    X = as.matrix(X)
+    W = as.matrix(W)
+
     solver = match.arg(solver)
     nobs = nrow(X)
     pobs = ncol(X)
@@ -24,8 +27,9 @@ balance_minimax = function(X, W, zeta, solver = c("ECOS", "SCS"), verbose = TRUE
         - t(X) %*% (W * gg[1:nobs]) <= - colMeans(X) + gg[nobs + 2]
     )
     cvx.problem = CVXR::Problem(CVXR::Minimize(objective), contraints)
-    cvx.output = solve(cvx.problem, solver = solver, verbose = verbose)
+    cvx.output = CVXR::solve(cvx.problem, solver = solver, verbose = verbose)
     result = cvx.output$getValue(gg)
     gamma = nobs * result[1:nobs]
+    # print(gamma)
     gamma
 }

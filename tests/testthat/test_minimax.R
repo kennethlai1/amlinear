@@ -1,3 +1,8 @@
+source("R/average_partial_effect.R")
+source("R/minimax.R")
+source("R/plugin.R")
+source("R/rlasso.R")
+# source("R/minimax.R")
 set.seed(1)
 
 p = 203
@@ -15,7 +20,7 @@ TAU = cbind(1, X) %*% beta.tau
 W = X %*% beta.e + sigma.W * (0.3 + 1/ (1 + exp(X %*% beta.tau[-1]))) * rnorm(n)
 Y = X %*% beta.m + W * TAU + sigma.Y * rnorm(n)
 
-APE = average_partial_effect(X, Y, W, balance.method = "minimax", verbose = FALSE)
+APE = average_partial_effect(X, Y, W, balance.method = "minimax", verbose = FALSE, solver="MOSEK")
 
 test_that("plugin estimator is accurate", {
     expect_equal(as.numeric(APE["point.estimate"]), mean(TAU), tolerance = 0.3)
@@ -24,7 +29,7 @@ test_that("plugin estimator is accurate", {
 
 
 sY = Y + 1
-APEsY = average_partial_effect(X, sY, W, balance.method = "minimax", verbose = FALSE)
+APEsY = average_partial_effect(X, sY, W, balance.method = "minimax", verbose = FALSE, solver="MOSEK")
 
 test_that("plugin estimator is Y-traslantion invariant", {
     expect_equal(APEsY["point.estimate"], APE["point.estimate"], tolerance = 0.05)

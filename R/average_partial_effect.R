@@ -37,12 +37,13 @@ average_partial_effect = function(X, Y, W,
     
     # Compute regression adjustment
     if (is.null(fitted.model)) {
-        lasso.out = rlasso(X.scl, Y, W, alpha, standardize = FALSE)
+        # lasso.out = rlasso(X.scl, Y, W, alpha, standardize = FALSE)
+        lasso.out = rlasso(X.scl, Y, W, alpha)
     } else {
         lasso.out = fitted.model
     }
-    tau.hat = lasso.out$tau.hat
-    w.hat = lasso.out$w.hat
+    tau.hat = lasso.out$tau_hat
+    w.hat = lasso.out$w_fit
     
     # Compute balancing weights
     if (balance.method == "minimax") {
@@ -54,7 +55,8 @@ average_partial_effect = function(X, Y, W,
     }
     
     # Compute point estimate and standard errors
-    m.hat = lasso.out$y.hat + (W - lasso.out$w.hat) * lasso.out$tau.hat
+    m.hat = lasso.out$m_hat
+    # m.hat = lasso.out$y.hat + (W - lasso.out$w.hat) * lasso.out$tau.hat
     point.estimate = mean(tau.hat + gamma * (Y - m.hat))
     Vhat = mean((tau.hat - point.estimate)^2 + gamma^2 * (Y - m.hat)^2)
     standard.error.estimate = sqrt(Vhat / length(W))
